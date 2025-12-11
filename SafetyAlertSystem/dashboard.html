@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Women Safety Alert System</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #ffd6e0;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    header {
+      background: #e91e63;
+      color: white;
+      padding: 20px;
+      border-radius: 0 0 20px 20px;
+    }
+
+    nav {
+      background: #f0ee62e9;
+      padding: 10px;
+      text-align: center;
+    }
+
+    nav a {
+      color: white;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    .container {
+      width: 60%;
+      margin: 30px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    h3 {
+      color: #6949c8fb;
+    }
+
+    select, input, button {
+      padding: 10px;
+      margin: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      outline: none;
+      width: 60%;
+    }
+
+    button {
+      background: #e91e63;
+      color: white;
+      border: none;
+      cursor: pointer;
+      padding: 10px 25px;
+      border-radius: 8px;
+    }
+
+    button:hover {
+      background: #c2185b;
+    }
+
+    .safe { color: green; font-weight: bold; }
+    .unsafe { color: red; font-weight: bold; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background: #ffcce0;
+      color: #e60073;
+    }
+
+    /* Popup Alert Box */
+    .popup {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #ffcce0;
+      color: #e60073;
+      border: 2px solid #ff4d88;
+      padding: 20px 30px;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      font-weight: bold;
+      display: none;
+      animation: blink 1s infinite;
+      text-align: left;
+    }
+
+    @keyframes blink {
+      0% { opacity: 1; }
+      50% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Women Safety Alert System</h1>
+    <p>Smart Safety Monitoring & Alert Platform</p>
+  </header>
+
+  <nav>
+    <a href="#">Home</a>
+    <a href="#">Alerts</a>
+    <a href="#">History</a>
+    <a href="#">Contact</a>
+  </nav>
+
+  <div class="container">
+    <div class="input-area">
+      <h3>Scenario Input</h3>
+      <label for="scenario">Select Scenario:</label><br>
+      <select id="scenario">
+        <option value="normal">Normal</option>
+        <option value="alone">Alone</option>
+        <option value="group">Group</option>
+        <option value="sos">SOS</option>
+      </select><br>
+      <label for="location">Enter Location:</label><br>
+      <input type="text" id="location" placeholder="Enter your location" />
+      <br>
+      <button onclick="detectScenario()">Detect Scenario</button>
+    </div>
+
+    <div class="output-area" id="outputArea">
+      <h3>Detection Output</h3>
+      <p id="detected"></p>
+      <p id="status"></p>
+      <p id="loc"></p>
+    </div>
+
+    <div class="history">
+      <h3>Alert History</h3>
+      <table id="historyTable">
+        <tr>
+          <th>No</th>
+          <th>Time</th>
+          <th>Scenario</th>
+          <th>Location</th>
+          <th>Status</th>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Popup Alert Box -->
+  <div class="popup" id="popupBox">
+    ⚠️ <span id="popupMsg"></span><br><br>
+    📩 Alert sent to: Police, Guardian, and Local Security 🚨
+  </div>
+
+  <script>
+    let alertCount = 0;
+
+    /* 🔔 Ask Notification Permission When Page Loads */
+    document.addEventListener("DOMContentLoaded", () => {
+      if (Notification.permission !== "granted") {
+        Notification.requestPermission();
+      }
+    });
+
+    function detectScenario() {
+      const scenario = document.getElementById("scenario").value;
+      const location = document.getElementById("location").value.trim().toUpperCase();
+      const detected = document.getElementById("detected");
+      const status = document.getElementById("status");
+      const loc = document.getElementById("loc");
+      const table = document.getElementById("historyTable");
+      const popupBox = document.getElementById("popupBox");
+      const popupMsg = document.getElementById("popupMsg");
+
+      if (!location) {
+        alert("Please enter your location!");
+        return;
+      }
+
+      let scenarioText = "";
+      let safe = true;
+
+      if (scenario === "alone") { scenarioText = "Woman Alone at Night"; safe = false; }
+      else if (scenario === "group") { scenarioText = "Surrounded by Group"; safe = false; }
+      else if (scenario === "sos") { scenarioText = "Emergency SOS Detected"; safe = false; }
+      else { scenarioText = "Normal Environment"; safe = true; }
+
+      detected.innerText = `Detected Scenario: ${scenarioText}`;
+      status.innerHTML = safe ? `Status: <span class="safe">🟢 Safe</span>` : `Status: <span class="unsafe">🔴 Unsafe</span>`;
+      loc.innerText = `Location: ${location}`;
+
+      const row = table.insertRow();
+      row.insertCell(0).innerText = ++alertCount;
+      row.insertCell(1).innerText = new Date().toLocaleString();
+      row.insertCell(2).innerText = scenarioText;
+      row.insertCell(3).innerText = location;
+      row.insertCell(4).innerText = safe ? "Safe" : "Alert Sent";
+
+      /* Show Popup Box */
+      if (!safe) {
+        popupMsg.innerText = `${scenarioText} detected at ${location}.`;
+        popupBox.style.display = "block";
+        setTimeout(() => {
+          popupBox.style.display = "none";
+        }, 7000);
+
+        /* 🔔 Send REAL System Notification */
+        if (Notification.permission === "granted") {
+          new Notification("🚨 Safety Alert!", {
+            body: `${scenarioText} detected at ${location}. Immediate help needed!`,
+            icon: "https://cdn-icons-png.flaticon.com/512/565/565547.png"
+          });
+        }
+      }
+    }
+  </script>
+
+</body>
+</html>
